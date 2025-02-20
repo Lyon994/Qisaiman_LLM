@@ -1,4 +1,6 @@
-from embedding.llm.openapi import Openapi
+'''这段代码是大模型与数据库交互'''
+
+from embedding.llm.openapi import ZhipuAPI as Openapi  # 改成 ZhipuAPI
 from embedding.vectordb.chromadb import ChromadbDb
 from base.config import Config
 

@@ -4,7 +4,7 @@ from flask import Flask, request, Response, render_template
 import json
 from embedding import Embedding
 from base import EMBEDDING
-
+import chardet
 # 初始化flaskAPP
 app = Flask(__name__)
 
@@ -15,17 +15,50 @@ def return_json(data):
 
 
 # 网页爬取
+# @app.route('/content/web', methods=['POST'])
+# def content_web():
+#     data = request.get_json()
+#     # 获取网页内容
+#     response = requests.get(data['url'])
+#     # 创建BeautifulSoup对象
+#     content = BeautifulSoup(response.text, 'html.parser')
+#     if data["id"] != "":
+#         content = content.find(id=data['id'])
+#     # 返回json类型字符串
+#     return return_json({"content": content.get_text()})
+
+
+
 @app.route('/content/web', methods=['POST'])
 def content_web():
     data = request.get_json()
     # 获取网页内容
     response = requests.get(data['url'])
-    # 创建BeautifulSoup对象
+
+    # 检测网页的编码
+    detected_encoding = chardet.detect(response.content)['encoding']
+
+    # 设置响应的编码
+    response.encoding = detected_encoding
+
+    # 创建 BeautifulSoup 对象
     content = BeautifulSoup(response.text, 'html.parser')
+
+    # 如果指定了 id，则提取对应 id 的内容
     if data["id"] != "":
         content = content.find(id=data['id'])
-    # 返回json类型字符串
-    return return_json({"content": content.get_text()})
+
+    # 提取文本内容
+    text_content = content.get_text() if content else ""
+
+    # 返回 JSON 类型字符串
+    return return_json({"content": text_content})
+
+
+# 其他路由和代码保持不变
+
+
+
 
 
 # 普通文本
